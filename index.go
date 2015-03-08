@@ -52,5 +52,19 @@ func main() {
 		ctx.Res.Json(tasks, 200)
 	})
 
+	app.Post("/login", func(ctx *neo.Ctx) {
+		db := SetupDB()
+		email, _ := ctx.Req.FormValue("email"), ctx.Req.FormValue("password")
+		//TODO: add an encrypted password column to the users table
+		var id, name string
+		err := db.QueryRow("SELECT id, name FROM users WHERE email = $1", email).Scan(&id, &name)
+		if err != nil {
+			ctx.Res.Json("Not authorised", 402)
+		} else {
+			ctx.Res.Json("User is '"+name+"'", 200)
+		}
+		//TODO: Generate a token for the given user
+	})
+
 	app.Start()
 }
